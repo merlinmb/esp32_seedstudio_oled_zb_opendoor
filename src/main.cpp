@@ -66,6 +66,10 @@ unsigned long _mqttReconnectInterval = MQTT_RECONNECT_INTERVAL_MILLISECS;
 int _mqttFailCount = 0;
 const int MQTT_FAIL_LIMIT = 8;
 
+// NTP + BST: re-check daylight-saving offset once per hour
+#define BST_CHECK_INTERVAL_MILLISECS 3600000UL
+unsigned long _lastBstCheck = 0;
+
 String _lastMQTTMessage = "";
 
 int _brightnesses[5] = {0, 51, 115, 192, MAXBRIGHTNESS};
@@ -1565,6 +1569,16 @@ void loop()
 	{
 		_runWifiReconnect = millis();
 		mqttReconnect();
+	}
+
+	// Keep NTP in sync and re-evaluate BST offset once per hour.
+	// _timeClient.update() only contacts the NTP server when its 60 s internal
+	// interval has elapsed, so calling it every loop iteration is fine.
+	_timeClient.update();
+	if (_runCurrent - _lastBstCheck >= BST_CHECK_INTERVAL_MILLISECS || _lastBstCheck == 0)
+	{
+		_lastBstCheck = _runCurrent;
+		checkAndApplyBST();
 	}
 
 	if (_isDisplayOn)

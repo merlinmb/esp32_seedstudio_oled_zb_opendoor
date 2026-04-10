@@ -66,14 +66,12 @@ byte _ledBuiltIn = 12;
 
 
 
-// You can specify the time server pool and the offset (in seconds, can be
-// changed later with setTimeOffset() ). Additionaly you can specify the
-// update interval (in milliseconds, can be changed using setUpdateInterval() ).
+// NTP client: offset is set dynamically by checkAndApplyBST(), so initialise to 0.
+// Update interval 60 s keeps the epoch counter accurate without hammering the pool.
 WiFiUDP ntpUDP;
-// const byte offset = 2;
-#define OFFSET 1
 const char* _timeServer = "pool.ntp.org";
-NTPClient _timeClient(ntpUDP, _timeServer, OFFSET, 60000);
+NTPClient _timeClient(ntpUDP, _timeServer, 0, 60000);
+int _ntpTimeOffset = 0; // tracks the offset currently applied to _timeClient
 unsigned long _unixTime;
 String _ntpDate = "";
 char timeHour[3];
@@ -143,7 +141,7 @@ String getTimefromEpoch(long int timeData)
 	tft.print(year(t));
 	tft.print(" ");
 	*/
-	byte __hour = (hour(t) + OFFSET) >= 24 ? hour(t) + OFFSET - 24 : hour(t) + OFFSET;
+	byte __hour = hour(t) % 24;
 	return String(__hour) + ":" + (minute(t) < 10 ? "0" : "") + String(minute(t));
 	;
 }
@@ -614,46 +612,36 @@ bool isBST(struct tm *timeinfo)
 	return false;
 }
 
-void checkBST()
+// Apply the correct UTC offset for BST/GMT and return whether BST is active.
+// Call once at boot (setupTimeClient) and then periodically (e.g. hourly) from
+// the main loop so the offset tracks daylight-saving changes automatically.
+bool checkAndApplyBST()
 {
-	struct tm timeinfo;
-#ifdef ESP32
-	if (!getLocalTime(&timeinfo))
+	// Derive raw UTC epoch by subtracting the currently applied offset.
+	unsigned long utcEpoch = _timeClient.getEpochTime() - (unsigned long)_ntpTimeOffset;
+	time_t t = (time_t)utcEpoch;
+	struct tm *utcTm = gmtime(&t);
+	if (!utcTm)
 	{
-		DEBUG_PRINTLN("Could not retieve local time from ESP");
-		return;
+		DEBUG_PRINTLN("checkAndApplyBST: gmtime failed");
+		return false;
 	}
-	bool __bst = isBST(&timeinfo);
-	DEBUG_PRINTLN("BST is" + String(__bst ? "" : " not") + " applied");
-#endif
-}
-void adjustBST(struct tm *timeinfo)
-{
-	if (isBST(timeinfo))
+
+	bool __bst = isBST(utcTm);
+	int newOffset = __bst ? 3600 : 0;
+	if (_ntpTimeOffset != newOffset)
 	{
-		DEBUG_PRINTLN("adjustBST()");
-		timeinfo->tm_hour += 1;
-		if (timeinfo->tm_hour == 24)
-			timeinfo->tm_hour = 0;
+		_ntpTimeOffset = newOffset;
+		_timeClient.setTimeOffset(newOffset);
+		DEBUG_PRINTLN("BST offset updated: " + String(newOffset) + "s (" + String(__bst ? "BST" : "GMT") + ")");
 	}
+	return __bst;
 }
 
 void setupTimeClient()
 {
-	struct tm timeinfo;
-
-#ifdef ESP32
-	if (!getLocalTime(&timeinfo))
-	{
-		DEBUG_PRINTLN("Failed to obtain local time");
-	}
-#endif
-	bool __bst = isBST(&timeinfo);
 	DEBUG_PRINTLN("Fetching NTP time");
-	_timeClient.setTimeOffset(__bst ? 3600 : 0); // Set time offset based on BST
 	_timeClient.begin();
-	_timeClient.update();
-	DEBUG_PRINTLN("Daylight Saving is " + String(__bst ? "" : "not ") + "applied");
 
 	int _retries = 0;
 	while (!_timeClient.forceUpdate() && _retries < 5)
@@ -662,6 +650,10 @@ void setupTimeClient()
 		DEBUG_PRINTLN(F("NTP delay"));
 		delay(350);
 	}
+
+	// Now that we have a valid UTC epoch, determine and apply the BST offset.
+	bool __bst = checkAndApplyBST();
+	DEBUG_PRINTLN("Daylight Saving is " + String(__bst ? "" : "not ") + "applied");
 }
 
 void setupMQTT(String deviceName, String mqttServerIP, uint16_t mqttServerPort)
