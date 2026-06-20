@@ -26,10 +26,17 @@
 #define DEBUG_PRINTLNDEC(x, DEC)
 #endif
 
-#define MCMDVERSION 1.8
+#define MCMDVERSION 2.0
 
-// Enable/disable TOUCH sensor functionality
+// Enable/disable TOUCH sensor functionality (override via build_flags -DENABLE_TOUCH_SENSOR=0)
+#ifndef ENABLE_TOUCH_SENSOR
 #define ENABLE_TOUCH_SENSOR 1
+#endif
+
+// MQTT client name (set per-environment via build_flags -DMQTT_CLIENTNAME=\"...\")
+#ifndef MQTT_CLIENTNAME
+#define MQTT_CLIENTNAME "esp32_opendoor2"
+#endif
 
 #define MAXBRIGHTNESS 255
 #define MINBRIGHTNESS 0
@@ -85,22 +92,45 @@ int _totalOpenContacts = 0;
 
 
 String _style = F(
-	"<style>#file-input,input{width:80%;height:40px;border-radius:4px;margin:5px auto;font-size:15px}"
-	"input{background:#f1f1f1;border:0;padding:0 5px}body{background:#3498db;font-family:sans-serif;font-size:14px;color:#777;}"
-	"select{background:#f1f1f1;border:0;padding:0 5px}body{background:#3498db;font-family:sans-serif;font-size:14px;color:#777}"
-	"#file-input{padding:0;border:1px solid #ddd;line-height:44px;text-align:center;display:block;cursor:pointer}"
-	"#bar,#prgbar{background-color:#f1f1f1;border-radius:10px}#bar{background-color:#3498db;width:0%;height:10px}"
-	"div{background:#fff;max-width:1024px;margin:5px auto;padding:5px;border-radius:5px;text-align:left;font-family:sans-serif;font-size:14px;}"
-	"form{background:#fff;margin:5px auto;padding:5px;border-radius:5px;text-align:center;font-family:sans-serif;font-size:14px;}"
-	".btn{background:#3498db;color:#fff;cursor:pointer}"
+	"<style>"
+	"@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');"
+	":root{--bg:#13161c;--surface:#1b2026;--surface2:#242a32;--border:#2d343d;--text:#e8eaed;--text-dim:#8b95a3;--accent:#4fb3ff;--accent-dim:#2b3a4a;--ok:#2ecc71;--bad:#e74c3c;}"
+	"*{box-sizing:border-box;}"
+	"body{background:var(--bg);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:var(--text);margin:0;padding:16px;-webkit-font-smoothing:antialiased;}"
+	"h1{font-size:21px;font-weight:700;margin:0 0 2px;color:var(--text);letter-spacing:-0.01em;} h1 i{color:var(--text-dim);font-size:13px;font-weight:500;}"
+	"h3{font-size:14px;font-weight:600;margin:0 0 12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}"
+	".page,.card{max-width:1024px;margin:0 auto 14px;}"
+	".card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.3);}"
+	"form{margin:0;}"
+	"hr.new5{border:none;border-top:1px solid var(--border);margin:14px 0;}"
+	"label,.field-label{color:var(--text-dim);}"
+	"input,select,button,.btn{height:38px;border-radius:6px;font-size:14px;font-family:inherit;}"
+	"input[type=text],input[type=password],select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0 10px;}"
+	"input[type=text]:focus,input[type=password]:focus,select:focus{outline:none;border-color:var(--accent);}"
+	"input[type=range]{vertical-align:middle;accent-color:var(--accent);}"
+	"input[type=checkbox]{width:16px;height:16px;vertical-align:middle;accent-color:var(--accent);}"
+	".btn,input[type=submit],button{background:var(--accent);color:#0b1117;border:0;padding:0 16px;cursor:pointer;font-weight:600;}"
+	".btn:hover,input[type=submit]:hover,button:hover{filter:brightness(1.1);}"
+	"a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}"
+	"#file-input{padding:0;border:1px dashed var(--border);line-height:44px;text-align:center;display:block;cursor:pointer;background:var(--surface2);color:var(--text-dim);}"
+	"#bar,#prgbar{background-color:var(--surface2);border-radius:10px;}#bar{background-color:var(--accent);width:0%;height:10px;border-radius:10px;}"
+	".device-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}"
+	".device-card{flex:1 1 260px;min-width:240px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;border-left:4px solid var(--border);}"
+	".device-card.device-open{background:rgba(231,76,60,0.12);border-left-color:var(--bad);}"
+	".device-card.device-closed{background:rgba(46,204,113,0.10);border-left-color:var(--ok);}"
+	".device-card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600;margin-bottom:6px;}"
+	".device-card-title{display:flex;align-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;}"
+	".device-card-actions{display:flex;gap:4px;flex-shrink:0;}"
+	".icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;color:var(--text-dim);background:transparent;}"
+	".icon-btn:hover{background:var(--border);color:var(--text);text-decoration:none;}"
+	".device-card-row{font-size:13px;margin:3px 0;word-break:break-all;}"
 	"svg[data-lastpass-icon=true]{visibility:none;display: none !important;}"
 	"div[data-lastpass-icon-root=true]{visibility:none;display: none !important;}"
 	"div[data-lastpass-icon-root]{visibility:none;display: none !important;}"
 	"div[data-lastpass-root]{visibility:none;display: none !important;}"
 	"div[data-lastpass-infield]{visibility:none;display: none !important;}"
 	"div[data-lastpass-infield='true']{visibility:none;display: none !important;}"
-	"hr.new5 { border: 1px solid #3498db;  }"
-	".dot{height:12px;width:12px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}.dot-closed{background:#2ecc71}.dot-open{background:#e74c3c}.legend{margin-top:6px;margin-bottom:6px;}"
+	".dot{height:10px;width:10px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}.dot-closed{background:var(--ok)}.dot-open{background:var(--bad)}.legend{margin-top:6px;margin-bottom:6px;color:var(--text-dim);}"
 	"</style>");
 
 // MQTT subscription topics managed via web UI and persisted to SPIFFS
@@ -153,6 +183,9 @@ void clearOpenContacts();
 
 // Helper to match subscription topic to incoming topic (supports '/#' suffix for prefix matches)
 bool topicMatches(const String &sub, const String &topic);
+
+// Formats a lastSeen timestamp string for display as "yyyy-mm-dd HH:MM"
+String formatLastSeen(const String &lastSeen);
 
 #ifndef _swap_int16_t
 #define _swap_int16_t(a, b) \
@@ -451,6 +484,20 @@ void mqttTransmitCustomSubscribe()
 	}
 }
 
+// Formats an ISO-8601-ish lastSeen string ("YYYY-MM-DDTHH:MM:SS[.mmm]Z") as "yyyy-mm-dd HH:MM" for display.
+// Returns the input unchanged if it doesn't match the expected shape.
+String formatLastSeen(const String &lastSeen)
+{
+	int tPos = lastSeen.indexOf('T');
+	if (tPos < 10)
+		return lastSeen;
+	String datePart = lastSeen.substring(0, tPos);
+	String timePart = lastSeen.substring(tPos + 1);
+	if (timePart.length() < 5)
+		return lastSeen;
+	return datePart + " " + timePart.substring(0, 5);
+}
+
 bool topicMatches(const String &sub, const String &topic)
 {
 	// support simple prefix wildcard using '/#'
@@ -519,6 +566,11 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 						_subscriptions[__s].lastSeen = String(ls);
 					else
 						_subscriptions[__s].lastSeen = _timeClient.getFormattedDate();
+				}
+				else
+				{
+					// 'last_seen' not provided in payload; use current NTP timestamp
+					_subscriptions[__s].lastSeen = _timeClient.getFormattedDate();
 				}
 				_subscriptions[__s].lastPayload = true;
 				DEBUG_PRINTLN("Updated subscription status for: " + _subscriptions[__s].topic + " contact=" + String(_subscriptions[__s].contact ? "true" : "false"));
@@ -988,81 +1040,69 @@ void setupWebServer()
 			String __infoStr;
 		__infoStr.reserve(2048);
 		__infoStr += "<html><head>"+_style;
+             __infoStr += "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'>";
              __infoStr += "<script>  ";
              __infoStr += "function checkFlipped() { document.getElementById('flipscreen').value=document.getElementById('flipscreenHidden').checked; }";
              __infoStr += "function submitForm() { checkFlipped(); document.getElementById('myForm').submit(); }";
              __infoStr += "function editFriendly(idx) { var cell = document.getElementById('friendly_' + idx); var current = cell.textContent || cell.innerText; cell.innerHTML = ''; var input = document.createElement('input'); input.id = 'fname_' + idx; input.type = 'text'; input.value = current; input.size = 20; cell.appendChild(input); var saveBtn = document.createElement('button'); saveBtn.textContent = 'Save'; saveBtn.onclick = function(){ saveFriendly(idx); }; cell.appendChild(saveBtn); var cancelBtn = document.createElement('button'); cancelBtn.textContent = 'Cancel'; cancelBtn.onclick = function(){ cancelEdit(idx, current); }; cell.appendChild(cancelBtn); }";
              __infoStr += "function saveFriendly(idx) { var val = document.getElementById('fname_' + idx).value; window.location = '/edittopic?idx=' + idx + '&name=' + encodeURIComponent(val); }";
              __infoStr += "function cancelEdit(idx, val) { var cell = document.getElementById('friendly_' + idx); cell.textContent = val; }";
+             __infoStr += "function setScrollInterval(){ var v=document.getElementById('scrollInterval').value; fetch('/setscrollinterval?ms='+v).then(function(){ location.reload(); }); }";
              __infoStr +="</script>";
              __infoStr += "</head>";
-					   __infoStr += "<div align=left><H1>" + String(MQTT_CLIENTNAME) + "<i> v" + String(MCMDVERSION,1)+"</i></H1>";
-             __infoStr += loginIndex+loginIndex2;
+					   __infoStr += "<div class='page'>";
+					   __infoStr += "<div class='card'><h1>" + String(MQTT_CLIENTNAME) + " <i>v" + String(MCMDVERSION,1)+"</i></h1></div>";
 
-					   __infoStr += "<hr class='new5'>";
-             __infoStr += "<form action='/set' id='myForm'>";
-					   __infoStr += "Vertically Flip Screen:&nbsp;&nbsp;<input id='flipscreenHidden' onclick='checkFlipped()' data-lpignore='true' name='flipscreenHidden' type='checkbox' value='true' width=20% ";
-             __infoStr +=  String(_configFlipSreen==3?"checked":"")+"><input type='hidden' name='flipscreen' id='flipscreen' value='false' /><br>";
+            __infoStr += "<div class='card'><h3>Open Contacts</h3>";
 
-            __infoStr += "Screen brightness:&nbsp;&nbsp;";
-            __infoStr += "<select id='brightness' name='brightness'>";
-            for (int i = 0; i < 5; i++)
+            // Legend for state colors
+            //__infoStr += "<div class='legend'><span class='dot dot-closed'></span>Closed (contact present)&nbsp;&nbsp;<span class='dot dot-open'></span>Open (no contact)</div>";
+
+            // Grid of device sub-cards (friendly name editable inline), tinted by open/closed state
+            __infoStr += "<div class='device-grid'>";
+            for (size_t __i = 0; __i < _subscriptions.size(); __i++)
             {
-                __infoStr += "<option value='"+String(_brightnesses[i])+"'"+ (_selectedBrightness==i?"selected='selected'":"") +">"+String(map(_brightnesses[i], 0, MAXBRIGHTNESS, 0, 100))+"%</option>";
+                String __state = "N/A";
+                String __dotClass = "";
+                String __tintClass = "";
+                if (_subscriptions[__i].lastPayload) {
+                    __state = (_subscriptions[__i].contact ? ("closed") : ("open"));
+                    __dotClass = (_subscriptions[__i].contact ? ("dot-closed") : ("dot-open"));
+                    __tintClass = (_subscriptions[__i].contact ? ("device-closed") : ("device-open"));
+                }
+                String __lastSeen = "N/A";
+                if (_subscriptions[__i].lastSeen.length() > 0) __lastSeen = formatLastSeen(_subscriptions[__i].lastSeen);
+                String __status = "N/A";
+                if (_subscriptions[__i].lastPayload) {
+                    __status = (_subscriptions[__i].contact ? ("true") : ("false"));
+                }
+                __infoStr += "<div class='device-card " + __tintClass + "'>";
+                __infoStr += "<div class='device-card-header'>";
+                __infoStr += "<span class='device-card-title'><span class='dot " + __dotClass + "'></span><span id='friendly_" + String(__i) + "'>" + _subscriptions[__i].friendly + "</span></span>";
+                __infoStr += "<span class='device-card-actions'>";
+                __infoStr += "<a class='icon-btn' href='javascript:void(0)' onclick='editFriendly(" + String(__i) + ")' title='Edit'><i class='fa-solid fa-pen'></i></a>";
+                __infoStr += "<a class='icon-btn' href='/togglecontact?idx=" + String(__i) + "' title='Toggle'><i class='fa-solid fa-toggle-on'></i></a>";
+                __infoStr += "<a class='icon-btn' href='/removetopic?idx=" + String(__i) + "' title='Remove'><i class='fa-solid fa-trash'></i></a>";
+                __infoStr += "</span>";
+                __infoStr += "</div>";
+                __infoStr += "<div class='device-card-row'><span class='field-label'>Topic:</span> " + _subscriptions[__i].topic + "</div>";
+                __infoStr += "<div class='device-card-row'><span class='field-label'>State:</span> " + __state + "</div>";
+                __infoStr += "<div class='device-card-row'><span class='field-label'>Last Seen:</span> " + __lastSeen + "</div>";
+                __infoStr += "<div class='device-card-row'><span class='field-label'>Status:</span> " + __status + "</div>";
+                __infoStr += "</div>";
             }
-            
-            __infoStr += "</select><br>";
-
-
-             __infoStr += "<input type='submit' class='btn' value='Save setting(s)'>";
-             __infoStr += "</form>";
+            __infoStr += "</div>";
 
             // Section to add MQTT subscription topics
-            __infoStr += "<hr class='new5'><h3>MQTT Subscribe Topics</h3>";
             __infoStr += "<form action='/addtopic' id='addtopicform'>";
             __infoStr += "<input type='text' name='topic' placeholder='e.g. zigbee2mqtt/mcmdhome/0x00158d00053e7610' value='' size='48'>&nbsp;";
             __infoStr += "<input type='text' name='name' placeholder='Friendly name (e.g. Back door)' value='' size='20'>&nbsp;";
             __infoStr += "<input type='submit' class='btn' value='Add Topic'>";
             __infoStr += "</form>";
 
-            // Legend for state colors
-            __infoStr += "<div class='legend'><span class='dot dot-closed'></span>Closed (contact present)&nbsp;&nbsp;<span class='dot dot-open'></span>Open (no contact)</div>";
-
-            // Control for OLED scroll interval
-            __infoStr += "<div style='margin-top:8px;'>OLED scroll interval:&nbsp;";
-            __infoStr += "<input id='scrollInterval' type='range' min='500' max='10000' step='250' value='" + String(_openScrollInterval) + "' oninput='document.getElementById(\'scrollIntervalVal\').innerText=this.value' />";
-            __infoStr += "<span id='scrollIntervalVal'>" + String(_openScrollInterval) + "</span> ms &nbsp;";
-            __infoStr += "<button class='btn' onclick='setScrollInterval()'>Set</button>";
             __infoStr += "</div>";
 
-            // Add JS function for setting interval
-            __infoStr += "<script>function setScrollInterval(){ var v=document.getElementById('scrollInterval').value; fetch('/setscrollinterval?ms='+v).then(function(){ location.reload(); }); }</script>"; 
-
-            // Table of current topics (friendly name editable inline)
-            __infoStr += "<table border=1 cellpadding=4 style='border-collapse:collapse; margin-top:8px;'><tr><th>Friendly name</th><th>Topic</th><th>State</th><th>Last Seen</th><th>Status</th><th>Action</th></tr>";
-            for (size_t __i = 0; __i < _subscriptions.size(); __i++)
-            {
-                String __state = "N/A";
-                String __dotClass = "";
-                if (_subscriptions[__i].lastPayload) {
-                    __state = (_subscriptions[__i].contact ? ("closed") : ("open"));
-                    __dotClass = (_subscriptions[__i].contact ? ("dot-closed") : ("dot-open"));
-                }
-                String __lastSeen = "N/A";
-                if (_subscriptions[__i].lastSeen.length() > 0) __lastSeen = _subscriptions[__i].lastSeen;
-                String __status = "N/A";
-                if (_subscriptions[__i].lastPayload) {
-                    __status = (_subscriptions[__i].contact ? ("true") : ("false"));
-                }
-                __infoStr += "<tr><td id='friendly_" + String(__i) + "'>" + _subscriptions[__i].friendly + "</td>";
-                __infoStr += "<td>" + _subscriptions[__i].topic + "</td>";
-                __infoStr += "<td><span class='dot " + __dotClass + "'></span>" + __state + "</td>";
-                __infoStr += "<td>" + __lastSeen + "</td>";
-                __infoStr += "<td>" + __status + "</td>";
-                __infoStr += "<td><a href='javascript:void(0)' onclick='editFriendly(" + String(__i) + ")'>Edit</a>&nbsp;|&nbsp;<a href='/togglecontact?idx=" + String(__i) + "'>Toggle</a>&nbsp;|&nbsp;<a href='/removetopic?idx=" + String(__i) + "'>Remove</a></td></tr>";
-            }
-            __infoStr += "</table>";
-			__infoStr += "<hr class='new5'>";
+			__infoStr += "<div class='card'>";
 			__infoStr += "Last Message Received:  <i>" + _lastMQTTMessage;
 			__infoStr += "</i><br>Last Message Published: <i>" + _lastPublishedMQTTMessage;
 
@@ -1072,7 +1112,38 @@ void setupWebServer()
 			__infoStr += "<br>";
 			__infoStr += "  IP Address: " + IpAddress2String(WiFi.localIP());
 			__infoStr += "<br>  MAC Address: " + WiFi.macAddress();
-			__infoStr += "</b></div>";
+			__infoStr += "</div>";
+
+             __infoStr += "<div class='card'><h3>Settings</h3>";
+             __infoStr += "<form action='/set' id='myForm'>";
+					   __infoStr += "Vertically Flip Screen:&nbsp;&nbsp;<input id='flipscreenHidden' onclick='checkFlipped()' data-lpignore='true' name='flipscreenHidden' type='checkbox' value='true' width=20% ";
+             __infoStr +=  String(_configFlipSreen==3?"checked":"")+"><input type='hidden' name='flipscreen' id='flipscreen' value='false' /><br><br>";
+
+            __infoStr += "Screen brightness:&nbsp;&nbsp;";
+            __infoStr += "<select id='brightness' name='brightness'>";
+            for (int i = 0; i < 5; i++)
+            {
+                __infoStr += "<option value='"+String(_brightnesses[i])+"'"+ (_selectedBrightness==i?"selected='selected'":"") +">"+String(map(_brightnesses[i], 0, MAXBRIGHTNESS, 0, 100))+"%</option>";
+            }
+
+            __infoStr += "</select><br><br>";
+
+
+             __infoStr += "<input type='submit' class='btn' value='Save setting(s)'>";
+             __infoStr += "</form>";
+
+            // Control for OLED scroll interval
+            __infoStr += "<div style='margin-top:8px;'>OLED scroll interval:&nbsp;";
+            __infoStr += "<input id='scrollInterval' type='range' min='500' max='10000' step='250' value='" + String(_openScrollInterval) + "' oninput='document.getElementById(\'scrollIntervalVal\').innerText=this.value' />";
+            __infoStr += "<span id='scrollIntervalVal'>" + String(_openScrollInterval) + "</span> ms &nbsp;";
+            __infoStr += "<button class='btn' onclick='setScrollInterval()'>Set</button>";
+            __infoStr += "</div>";
+
+             __infoStr += "</div>";
+
+             __infoStr += "<h3 style='margin:0 auto 8px;max-width:1024px;'>Firmware Update</h3>" + loginIndex+loginIndex2;
+
+			__infoStr += "</div>";
 
 			String __retStr = __infoStr+"</html>";
 
@@ -1298,7 +1369,7 @@ void keepMQTTAlive(void *parameters)
 		if (_mqttClient.connected())
 		{
 			_mqttClient.loop();
-			DEBUG_PRINTLN("keepMQTTAlive: MQTT connected");
+			//DEBUG_PRINTLN("keepMQTTAlive: MQTT connected");
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
 			continue;
 		}
