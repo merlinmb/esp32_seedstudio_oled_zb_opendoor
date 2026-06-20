@@ -96,13 +96,25 @@ String _style = F(
 	"@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');"
 	":root{--bg:#13161c;--surface:#1b2026;--surface2:#242a32;--border:#2d343d;--text:#e8eaed;--text-dim:#8b95a3;--accent:#4fb3ff;--accent-dim:#2b3a4a;--ok:#2ecc71;--bad:#e74c3c;}"
 	"*{box-sizing:border-box;}"
-	"body{background:var(--bg);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:var(--text);margin:0;padding:16px;-webkit-font-smoothing:antialiased;}"
-	"h1{font-size:21px;font-weight:700;margin:0 0 2px;color:var(--text);letter-spacing:-0.01em;} h1 i{color:var(--text-dim);font-size:13px;font-weight:500;}"
-	"h3{font-size:14px;font-weight:600;margin:0 0 12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}"
-	".page,.card{max-width:1024px;margin:0 auto 14px;}"
-	".card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.3);}"
+	"body{background:linear-gradient(135deg,#1f2937 0%,#0d0f13 100%);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:var(--text);margin:0;padding:20px;min-height:100vh;-webkit-font-smoothing:antialiased;}"
+	"h1,h2,h3{font-family:inherit;color:var(--text);}"
+	"h1{font-size:22px;font-weight:700;margin:0 0 4px;letter-spacing:-0.01em;}"
+	"h1 i{color:var(--text-dim);font-size:13px;font-weight:500;font-style:normal;}"
+	"h2{font-size:15px;font-weight:600;margin:0 0 14px;}"
+	"h3{font-size:11px;font-weight:600;margin:0 0 4px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}"
+	"p{font-size:13px;color:var(--text-dim);margin:0;}"
+	".layout{max-width:1100px;margin:0 auto;display:flex;gap:16px;align-items:flex-start;}"
+	".sidebar{flex:0 0 270px;position:sticky;top:20px;}"
+	".main{flex:1;min-width:0;}"
+	".card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.3);margin-bottom:16px;}"
+	".card:last-child{margin-bottom:0;}"
 	"form{margin:0;}"
-	"hr.new5{border:none;border-top:1px solid var(--border);margin:14px 0;}"
+	".form-row{display:flex;align-items:center;gap:12px;padding:8px 0;flex-wrap:wrap;}"
+	".form-row label{flex:0 0 160px;color:var(--text-dim);font-size:13px;}"
+	".sidebar .form-row{flex-direction:column;align-items:flex-start;gap:2px;padding:6px 0;}"
+	".sidebar .form-row label{flex:none;}"
+	".sidebar .form-row span{font-size:13px;word-break:break-word;}"
+	".form-actions{margin-top:12px;}"
 	"label,.field-label{color:var(--text-dim);}"
 	"input,select,button,.btn{height:38px;border-radius:6px;font-size:14px;font-family:inherit;}"
 	"input[type=text],input[type=password],select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0 10px;}"
@@ -114,7 +126,7 @@ String _style = F(
 	"a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}"
 	"#file-input{padding:0;border:1px dashed var(--border);line-height:44px;text-align:center;display:block;cursor:pointer;background:var(--surface2);color:var(--text-dim);}"
 	"#bar,#prgbar{background-color:var(--surface2);border-radius:10px;}#bar{background-color:var(--accent);width:0%;height:10px;border-radius:10px;}"
-	".device-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}"
+	".device-grid{display:flex;flex-wrap:wrap;gap:10px;}"
 	".device-card{flex:1 1 260px;min-width:240px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;border-left:4px solid var(--border);}"
 	".device-card.device-open{background:rgba(231,76,60,0.12);border-left-color:var(--bad);}"
 	".device-card.device-closed{background:rgba(46,204,113,0.10);border-left-color:var(--ok);}"
@@ -124,6 +136,10 @@ String _style = F(
 	".icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;color:var(--text-dim);background:transparent;}"
 	".icon-btn:hover{background:var(--border);color:var(--text);text-decoration:none;}"
 	".device-card-row{font-size:13px;margin:3px 0;word-break:break-all;}"
+	".device-edit-row{margin:4px 0;}"
+	".device-edit-row input{width:100%;}"
+	".device-edit-actions{display:flex;gap:6px;margin-top:8px;}"
+	".device-edit-actions button{padding:0 12px;height:30px;font-size:12px;}"
 	"svg[data-lastpass-icon=true]{visibility:none;display: none !important;}"
 	"div[data-lastpass-icon-root=true]{visibility:none;display: none !important;}"
 	"div[data-lastpass-icon-root]{visibility:none;display: none !important;}"
@@ -131,6 +147,7 @@ String _style = F(
 	"div[data-lastpass-infield]{visibility:none;display: none !important;}"
 	"div[data-lastpass-infield='true']{visibility:none;display: none !important;}"
 	".dot{height:10px;width:10px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}.dot-closed{background:var(--ok)}.dot-open{background:var(--bad)}.legend{margin-top:6px;margin-bottom:6px;color:var(--text-dim);}"
+	"@media (max-width:720px){.layout{flex-direction:column;}.sidebar{flex:none;width:100%;position:static;}}"
 	"</style>");
 
 // MQTT subscription topics managed via web UI and persisted to SPIFFS
@@ -1044,39 +1061,42 @@ void setupWebServer()
              __infoStr += "<script>  ";
              __infoStr += "function checkFlipped() { document.getElementById('flipscreen').value=document.getElementById('flipscreenHidden').checked; }";
              __infoStr += "function submitForm() { checkFlipped(); document.getElementById('myForm').submit(); }";
-             __infoStr += "function editFriendly(idx) { var cell = document.getElementById('friendly_' + idx); var current = cell.textContent || cell.innerText; cell.innerHTML = ''; var input = document.createElement('input'); input.id = 'fname_' + idx; input.type = 'text'; input.value = current; input.size = 20; cell.appendChild(input); var saveBtn = document.createElement('button'); saveBtn.textContent = 'Save'; saveBtn.onclick = function(){ saveFriendly(idx); }; cell.appendChild(saveBtn); var cancelBtn = document.createElement('button'); cancelBtn.textContent = 'Cancel'; cancelBtn.onclick = function(){ cancelEdit(idx, current); }; cell.appendChild(cancelBtn); }";
-             __infoStr += "function saveFriendly(idx) { var val = document.getElementById('fname_' + idx).value; window.location = '/edittopic?idx=' + idx + '&name=' + encodeURIComponent(val); }";
-             __infoStr += "function cancelEdit(idx, val) { var cell = document.getElementById('friendly_' + idx); cell.textContent = val; }";
-             __infoStr += "function setScrollInterval(){ var v=document.getElementById('scrollInterval').value; fetch('/setscrollinterval?ms='+v).then(function(){ location.reload(); }); }";
+             __infoStr += "function editFriendly(idx) { var card = document.getElementById('devicecard_' + idx); var nameEl = document.getElementById('friendly_' + idx); var topicEl = document.getElementById('topic_' + idx); var curName = nameEl.textContent || nameEl.innerText; var curTopic = topicEl.textContent || topicEl.innerText; card.dataset.curName = curName; card.dataset.curTopic = curTopic; nameEl.innerHTML = ''; var nameInput = document.createElement('input'); nameInput.id = 'fname_' + idx; nameInput.type = 'text'; nameInput.value = curName; nameInput.placeholder = 'Friendly name'; nameEl.appendChild(nameInput); topicEl.innerHTML = ''; var topicInput = document.createElement('input'); topicInput.id = 'ftopic_' + idx; topicInput.type = 'text'; topicInput.value = curTopic; topicInput.placeholder = 'Zigbee topic'; topicEl.appendChild(topicInput); var actions = document.createElement('div'); actions.className = 'device-edit-actions'; actions.id = 'editactions_' + idx; var saveBtn = document.createElement('button'); saveBtn.textContent = 'Save'; saveBtn.onclick = function(){ saveFriendly(idx); }; actions.appendChild(saveBtn); var cancelBtn = document.createElement('button'); cancelBtn.textContent = 'Cancel'; cancelBtn.onclick = function(){ cancelEdit(idx); }; actions.appendChild(cancelBtn); card.appendChild(actions); }";
+             __infoStr += "function saveFriendly(idx) { var name = document.getElementById('fname_' + idx).value; var topic = document.getElementById('ftopic_' + idx).value; window.location = '/edittopic?idx=' + idx + '&name=' + encodeURIComponent(name) + '&topic=' + encodeURIComponent(topic); }";
+             __infoStr += "function cancelEdit(idx) { var card = document.getElementById('devicecard_' + idx); var nameEl = document.getElementById('friendly_' + idx); var topicEl = document.getElementById('topic_' + idx); nameEl.textContent = card.dataset.curName; topicEl.textContent = card.dataset.curTopic; var actions = document.getElementById('editactions_' + idx); if (actions) actions.remove(); }";
              __infoStr +="</script>";
              __infoStr += "</head>";
-					   __infoStr += "<div class='page'>";
-					   __infoStr += "<div class='card'><h1>" + String(MQTT_CLIENTNAME) + " <i>v" + String(MCMDVERSION,1)+"</i></h1></div>";
+					   __infoStr += "<div class='layout'>";
 
-            __infoStr += "<div class='card'><h3>Open Contacts</h3>";
+            __infoStr += "<div class='sidebar'><div class='card'>";
+            __infoStr += "<h1>" + String(MQTT_CLIENTNAME) + " <i>v" + String(MCMDVERSION,1)+"</i></h1>";
+            __infoStr += "<p>Monitors Zigbee contact sensors over MQTT and shows their state on the OLED display. Add the topics you want to track below, then manage display and firmware settings here.</p>";
+            __infoStr += "<h2 style='margin-top:18px;'>Status</h2>";
+            __infoStr += "<div class='form-row'><label>Last message received</label><span>" + _lastMQTTMessage + "</span></div>";
+            __infoStr += "<div class='form-row'><label>Last message published</label><span>" + _lastPublishedMQTTMessage + "</span></div>";
+            __infoStr += "<div class='form-row'><label>Network</label><span>" + String(_networkConnection ? WIFI_ACCESSPOINT : WIFI_ACCESSPOINT1) + " (" + _rssiQualityPercentage + "%)</span></div>";
+            __infoStr += "<div class='form-row'><label>MQTT</label><span>" + String(_mqttClient.connected() ? "Connected" : "Disconnected <a href='/mqttreconnect'>(Reconnect)</a>") + "</span></div>";
+            __infoStr += "<div class='form-row'><label>IP Address</label><span>" + IpAddress2String(WiFi.localIP()) + "</span></div>";
+            __infoStr += "<div class='form-row'><label>MAC Address</label><span>" + WiFi.macAddress() + "</span></div>";
+            __infoStr += "</div></div>";
 
-            // Legend for state colors
-            //__infoStr += "<div class='legend'><span class='dot dot-closed'></span>Closed (contact present)&nbsp;&nbsp;<span class='dot dot-open'></span>Open (no contact)</div>";
+            __infoStr += "<div class='main'>";
 
-            // Grid of device sub-cards (friendly name editable inline), tinted by open/closed state
+            __infoStr += "<div class='card'><h2>Open Contacts</h2>";
+
+            // Grid of device sub-cards (friendly name + topic editable inline), tinted by open/closed state
             __infoStr += "<div class='device-grid'>";
             for (size_t __i = 0; __i < _subscriptions.size(); __i++)
             {
-                String __state = "N/A";
                 String __dotClass = "";
                 String __tintClass = "";
                 if (_subscriptions[__i].lastPayload) {
-                    __state = (_subscriptions[__i].contact ? ("closed") : ("open"));
                     __dotClass = (_subscriptions[__i].contact ? ("dot-closed") : ("dot-open"));
                     __tintClass = (_subscriptions[__i].contact ? ("device-closed") : ("device-open"));
                 }
                 String __lastSeen = "N/A";
                 if (_subscriptions[__i].lastSeen.length() > 0) __lastSeen = formatLastSeen(_subscriptions[__i].lastSeen);
-                String __status = "N/A";
-                if (_subscriptions[__i].lastPayload) {
-                    __status = (_subscriptions[__i].contact ? ("true") : ("false"));
-                }
-                __infoStr += "<div class='device-card " + __tintClass + "'>";
+                __infoStr += "<div class='device-card " + __tintClass + "' id='devicecard_" + String(__i) + "'>";
                 __infoStr += "<div class='device-card-header'>";
                 __infoStr += "<span class='device-card-title'><span class='dot " + __dotClass + "'></span><span id='friendly_" + String(__i) + "'>" + _subscriptions[__i].friendly + "</span></span>";
                 __infoStr += "<span class='device-card-actions'>";
@@ -1085,64 +1105,51 @@ void setupWebServer()
                 __infoStr += "<a class='icon-btn' href='/removetopic?idx=" + String(__i) + "' title='Remove'><i class='fa-solid fa-trash'></i></a>";
                 __infoStr += "</span>";
                 __infoStr += "</div>";
-                __infoStr += "<div class='device-card-row'><span class='field-label'>Topic:</span> " + _subscriptions[__i].topic + "</div>";
-                __infoStr += "<div class='device-card-row'><span class='field-label'>State:</span> " + __state + "</div>";
+                __infoStr += "<div class='device-card-row device-edit-row'><span class='field-label'>Topic:</span> <span id='topic_" + String(__i) + "'>" + _subscriptions[__i].topic + "</span></div>";
                 __infoStr += "<div class='device-card-row'><span class='field-label'>Last Seen:</span> " + __lastSeen + "</div>";
-                __infoStr += "<div class='device-card-row'><span class='field-label'>Status:</span> " + __status + "</div>";
                 __infoStr += "</div>";
             }
             __infoStr += "</div>";
 
             // Section to add MQTT subscription topics
+            __infoStr += "<div class='form-actions'>";
             __infoStr += "<form action='/addtopic' id='addtopicform'>";
-            __infoStr += "<input type='text' name='topic' placeholder='e.g. zigbee2mqtt/mcmdhome/0x00158d00053e7610' value='' size='48'>&nbsp;";
-            __infoStr += "<input type='text' name='name' placeholder='Friendly name (e.g. Back door)' value='' size='20'>&nbsp;";
+            __infoStr += "<div class='form-row'><label>Zigbee topic</label><input type='text' name='topic' placeholder='e.g. zigbee2mqtt/mcmdhome/0x00158d00053e7610' value='' size='40'></div>";
+            __infoStr += "<div class='form-row'><label>Friendly name</label><input type='text' name='name' placeholder='e.g. Back door' value='' size='24'></div>";
             __infoStr += "<input type='submit' class='btn' value='Add Topic'>";
             __infoStr += "</form>";
+            __infoStr += "</div>";
 
             __infoStr += "</div>";
 
-			__infoStr += "<div class='card'>";
-			__infoStr += "Last Message Received:  <i>" + _lastMQTTMessage;
-			__infoStr += "</i><br>Last Message Published: <i>" + _lastPublishedMQTTMessage;
-
-			__infoStr += "</i><br><hr  class='new5'>";
-			__infoStr += "Connected to: " + String(_networkConnection ? WIFI_ACCESSPOINT : WIFI_ACCESSPOINT1) + " (" + _rssiQualityPercentage + "%)<br>";
-			__infoStr += _mqttClient.connected() ? "MQTT Connected" : "MQTT Disconnected <a href='/mqttreconnect'>(Reconnect)</a>";
-			__infoStr += "<br>";
-			__infoStr += "  IP Address: " + IpAddress2String(WiFi.localIP());
-			__infoStr += "<br>  MAC Address: " + WiFi.macAddress();
-			__infoStr += "</div>";
-
-             __infoStr += "<div class='card'><h3>Settings</h3>";
+             __infoStr += "<div class='card'><h2>Settings</h2>";
              __infoStr += "<form action='/set' id='myForm'>";
-					   __infoStr += "Vertically Flip Screen:&nbsp;&nbsp;<input id='flipscreenHidden' onclick='checkFlipped()' data-lpignore='true' name='flipscreenHidden' type='checkbox' value='true' width=20% ";
-             __infoStr +=  String(_configFlipSreen==3?"checked":"")+"><input type='hidden' name='flipscreen' id='flipscreen' value='false' /><br><br>";
+             __infoStr += "<div class='form-row'><label>Vertically flip screen</label><input id='flipscreenHidden' onclick='checkFlipped()' data-lpignore='true' name='flipscreenHidden' type='checkbox' value='true' ";
+             __infoStr +=  String(_configFlipSreen==3?"checked":"")+"><input type='hidden' name='flipscreen' id='flipscreen' value='false' /></div>";
 
-            __infoStr += "Screen brightness:&nbsp;&nbsp;";
+            __infoStr += "<div class='form-row'><label>Screen brightness</label>";
             __infoStr += "<select id='brightness' name='brightness'>";
             for (int i = 0; i < 5; i++)
             {
                 __infoStr += "<option value='"+String(_brightnesses[i])+"'"+ (_selectedBrightness==i?"selected='selected'":"") +">"+String(map(_brightnesses[i], 0, MAXBRIGHTNESS, 0, 100))+"%</option>";
             }
-
-            __infoStr += "</select><br><br>";
-
-
-             __infoStr += "<input type='submit' class='btn' value='Save setting(s)'>";
-             __infoStr += "</form>";
+            __infoStr += "</select></div>";
 
             // Control for OLED scroll interval
-            __infoStr += "<div style='margin-top:8px;'>OLED scroll interval:&nbsp;";
-            __infoStr += "<input id='scrollInterval' type='range' min='500' max='10000' step='250' value='" + String(_openScrollInterval) + "' oninput='document.getElementById(\'scrollIntervalVal\').innerText=this.value' />";
-            __infoStr += "<span id='scrollIntervalVal'>" + String(_openScrollInterval) + "</span> ms &nbsp;";
-            __infoStr += "<button class='btn' onclick='setScrollInterval()'>Set</button>";
+            __infoStr += "<div class='form-row'><label>OLED scroll interval</label>";
+            __infoStr += "<input id='scrollInterval' name='open_scroll_interval_ms' type='range' min='500' max='10000' step='250' value='" + String(_openScrollInterval) + "' oninput='document.getElementById(\'scrollIntervalVal\').innerText=this.value' />";
+            __infoStr += "<span id='scrollIntervalVal'>" + String(_openScrollInterval) + "</span> ms";
             __infoStr += "</div>";
 
+             __infoStr += "<div class='form-actions'>";
+             __infoStr += "<input type='submit' class='btn' value='Save setting(s)'>";
+             __infoStr += "</div>";
+             __infoStr += "</form>";
              __infoStr += "</div>";
 
-             __infoStr += "<h3 style='margin:0 auto 8px;max-width:1024px;'>Firmware Update</h3>" + loginIndex+loginIndex2;
+             __infoStr += "<div class='card'><h2>Firmware Update</h2>" + loginIndex+loginIndex2 + "</div>";
 
+			__infoStr += "</div>";
 			__infoStr += "</div>";
 
 			String __retStr = __infoStr+"</html>";
@@ -1268,6 +1275,36 @@ void setupWebServer()
 			String name = _httpServer.arg("name");
 			if (topic.length() > 0) {
 				addMQTTTopic(topic, name);
+				saveConfigValuesSPIFFS();
+			}
+			_httpServer.sendHeader("Location", "/");
+			_httpServer.send(302, "text/plain", ""); });
+
+	// Handler to edit a topic's friendly name and/or zigbee topic via GET /edittopic?idx=N&name=...&topic=... (redirects back to /)
+	_httpServer.on("/edittopic", HTTP_GET, []()
+				   {
+			String __idx = _httpServer.arg("idx");
+			int idx = __idx.toInt();
+			if (idx >= 0 && idx < (int)_subscriptions.size()) {
+				String name = _httpServer.arg("name");
+				String topic = _httpServer.arg("topic");
+				name.trim();
+				topic.trim();
+				if (name.length() > 0) {
+					_subscriptions[idx].friendly = name;
+				}
+				if (topic.length() > 0 && topic != _subscriptions[idx].topic) {
+					if (_mqttClient.connected()) {
+						_mqttClient.unsubscribe(_subscriptions[idx].topic.c_str());
+					}
+					_subscriptions[idx].topic = topic;
+					_subscriptions[idx].contact = true;
+					_subscriptions[idx].lastSeen = "";
+					_subscriptions[idx].lastPayload = false;
+					if (_mqttClient.connected()) {
+						mqttSubscribe(topic);
+					}
+				}
 				saveConfigValuesSPIFFS();
 			}
 			_httpServer.sendHeader("Location", "/");

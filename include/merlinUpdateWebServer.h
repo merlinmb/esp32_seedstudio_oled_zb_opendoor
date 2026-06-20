@@ -30,7 +30,7 @@ String style =
 "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');"
 ":root{--bg:#13161c;--surface:#1b2026;--surface2:#242a32;--border:#2d343d;--text:#e8eaed;--text-dim:#8b95a3;--accent:#4fb3ff;}"
 "*{box-sizing:border-box;}"
-"body{background:var(--bg);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:var(--text);margin:0;padding:16px;-webkit-font-smoothing:antialiased;}"
+"body{background:linear-gradient(135deg,#1f2937 0%,#0d0f13 100%);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:var(--text);margin:0;padding:16px;min-height:100vh;-webkit-font-smoothing:antialiased;}"
 "#file-input,input,select,button,.btn{height:40px;border-radius:6px;margin:5px auto;font-size:14px;font-family:inherit;}"
 "input,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0 10px;}"
 "input:focus,select:focus{outline:none;border-color:var(--accent);}"
@@ -46,7 +46,6 @@ String style =
 "div[data-lastpass-root]{visibility:none;display: none !important;}"
 "div[data-lastpass-infield]{visibility:none;display: none !important;}"
 "div[data-lastpass-infield='true']{visibility:none;display: none !important;}"
-"hr.new5 { border: none; border-top: 1px solid var(--border); }"
 
 
 
@@ -54,14 +53,14 @@ String style =
 
 /* Login page */
 String loginIndex =
-"<div class='card'><form name=loginForm>"
+"<form name=loginForm>"
 "<input name=userid data-lpignore='true' placeholder='User ID' width:100%> "
 "<input name=pwd data-lpignore='true' placeholder=Password type=Password> "
 "<input type=submit onclick=check(this.form) class=btn value='Firmware Update - Login'>"
 "<br>";
 
 String loginIndex2 =
-"</form></div>"
+"</form>"
 "<script>"
 "const editor ="
 "document.querySelector('grammarly-editor-plugin');"
